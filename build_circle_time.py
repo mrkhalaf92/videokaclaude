@@ -308,7 +308,7 @@ def sc6(t):
     if p > 0:
         book(d, W / 2, 560, 560 * p, 330 * p, INK, CREAM)
     pop_text(d, t, ws("alhamdulillah") - 0.1, (W / 2, 840), "ALHAMDULILLAH", 92, INK)
-    t2 = ws("mula")
+    t2 = ws("mula", len(LINES) - 1)
     if t >= t2 - 0.1:
         q = ease_back(prog(t, t2 - 0.1, 0.55))
         bw = 760 * q
