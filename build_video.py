@@ -34,9 +34,9 @@ _fc = {}
 
 
 def font(size, w="ExtraBold"):
-    k = (int(size), w)
+    k = (max(2, int(size)), w)
     if k not in _fc:
-        _fc[k] = ImageFont.truetype(f"{FD}Inter-{w}.otf", int(size))
+        _fc[k] = ImageFont.truetype(f"{FD}Inter-{w}.otf", k[0])
     return _fc[k]
 
 
@@ -146,6 +146,8 @@ def ease_out(x):
 
 def ease_back(x):
     x = clamp(x)
+    if x <= 0:
+        return 0.0
     c1, c3 = 1.70158, 2.70158
     return 1 + c3 * (x - 1) ** 3 + c1 * (x - 1) ** 2
 
