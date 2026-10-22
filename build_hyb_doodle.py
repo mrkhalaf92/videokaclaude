@@ -4,7 +4,8 @@
 Guna: python3 build_hyb_doodle.py <output.mp4> [vo.wav]
       python3 build_hyb_doodle.py still <saat>...   (simpan still_<saat>.png)
       python3 build_hyb_doodle.py board <output.png> (contact sheet storyboard)
-Tanpa vo.wav, video keluar dengan SFX pen marker sahaja.
+Tanpa vo.wav, video keluar dengan SFX pen marker sahaja. VO_CUTS ditala untuk VO 28.5s (22/10/2026);
+kalau VO dirakam semula, laraskan VO_CUTS ikut jeda baru (ffmpeg silencedetect).
 """
 import math
 import os
@@ -262,6 +263,11 @@ HAND = None
 # ---- adegan ----
 L1, L2, L3 = 430, 545, 660
 HS = 86  # saiz tajuk
+# sempadan adegan, disegerakkan dengan jeda dalam VO
+B = [0.0, 3.0, 7.3, 11.6, 15.7, 22.1, 25.8, 29.3, DUR]
+# potongan VO: (mula sumber, tamat sumber, mula dalam video)
+VO_CUTS = [(0.0, 1.62, 0.1), (2.05, 5.80, 3.1), (6.18, 10.0, 7.4), (10.44, 13.99, 11.7),
+           (14.29, 19.97, 15.8), (20.27, 23.04, 22.2), (23.47, 25.60, 25.9), (26.01, 28.52, 29.4)]
 
 
 def headline(t0, lines, hl=None, speed=0.042, size=HS, ys=None):
@@ -270,53 +276,54 @@ def headline(t0, lines, hl=None, speed=0.042, size=HS, ys=None):
     acts, t = [], t0
     for i, (s, y) in enumerate(zip(lines, ys)):
         if i == hl:
-            acts.append(highlight(t, t + 0.25, s, 540, y, size))
-            t += 0.3
+            acts.append(highlight(t, t + 0.2, s, 540, y, size))
+            t += 0.25
         d = max(0.3, len(s) * speed)
         acts.append(text(t, t + d, s, 540, y, size))
-        t += d + 0.06
+        t += d + 0.05
     return acts, t
 
 
-def scene1():
-    a, t = headline(0.15, ["ANAK DAH MASUK", "SEKOLAH RENDAH?"], hl=1, size=84)
-    a.append(text(t, t + 0.4, "(umur 7–12 tahun)", 540, 650, 46, "SemiBold", GREY))
-    t += 0.45
+def scene1(s0, s1):
+    a, t = headline(s0 + 0.1, ["ANAK DAH MASUK", "SEKOLAH RENDAH?"], hl=1, size=84, speed=0.032)
+    a.append(text(t, t + 0.28, "(umur 7–12 tahun)", 540, 650, 46, "SemiBold", GREY))
+    t += 0.32
     bx, by = 540, 1150
     bag = rbox(bx - 125, by - 120, bx + 125, by + 160, 44)
     flap = [(bx - 125, by - 30), (bx - 125, by - 75)] + ell(bx, by - 75, 125, 75, 180, 360)[1:] + [(bx + 125, by - 30), (bx - 125, by - 30)]
-    a += [fill(t + 0.3, bag, MUSTARD)]
-    a += seq(t, t + 0.55, [bag, flap, ell(bx, by - 140, 44, 44, 180, 360), rbox(bx - 50, by + 40, bx + 50, by + 115, 16)])
-    a += boy(t + 0.6, t + 1.0, 225, 1110, 108)
-    a += girl(t + 1.0, t + 1.45, 855, 1080, 92)
-    return 0.0, 4.0, a
+    a += [fill(t + 0.2, bag, MUSTARD)]
+    a += seq(t, t + 0.36, [bag, flap, ell(bx, by - 140, 44, 44, 180, 360), rbox(bx - 50, by + 40, bx + 50, by + 115, 16)])
+    a += boy(t + 0.38, t + 0.68, 225, 1110, 108)
+    a += girl(t + 0.7, t + 1.05, 855, 1080, 92)
+    return s0, s1, a
 
 
-def scene2():
-    a, t = headline(4.1, ["Ibu ayah mencari", "circle anak soleh"], hl=1)
+def scene2(s0, s1):
+    a, t = headline(s0 + 0.2, ["Ibu ayah mencari", "circle anak soleh"], hl=1, speed=0.05)
+    t += 0.05
     cx, cy = 500, 1080
     a += [fill(t + 0.3, [cx - 225, cy - 225, cx + 225, cy + 225], (255, 252, 244), kind="ell")]
     a += seq(t, t + 0.55, [ell(cx, cy, 225), ell(cx, cy, 200), [(cx + 170, cy + 170), (cx + 320, cy + 320)]], w=9)
     a.append(stroke(t + 0.5, t + 0.62, [(cx + 175, cy + 175), (cx + 315, cy + 315)], 30))
     t += 0.65
-    a += seq(t, t + 0.35, [[(cx - 70, cy + 110), (cx + 70, cy + 40)], [(cx + 70, cy + 110), (cx - 70, cy + 40)],
-                           quad((cx - 80, cy + 20), (cx - 40, cy + 40), (cx, cy + 40)) + quad((cx, cy + 40), (cx + 40, cy + 40), (cx + 80, cy + 20)),
-                           [(cx - 80, cy + 20), (cx - 80, cy - 30)] + quad((cx - 80, cy - 30), (cx - 40, cy - 10), (cx, cy - 10)) + [(cx, cy + 40)],
-                           [(cx, cy - 10)] + quad((cx, cy - 10), (cx + 40, cy - 10), (cx + 80, cy - 30)) + [(cx + 80, cy + 20)]], w=6)
-    t += 0.4
+    a += seq(t, t + 0.4, [[(cx - 70, cy + 110), (cx + 70, cy + 40)], [(cx + 70, cy + 110), (cx - 70, cy + 40)],
+                          quad((cx - 80, cy + 20), (cx - 40, cy + 40), (cx, cy + 40)) + quad((cx, cy + 40), (cx + 40, cy + 40), (cx + 80, cy + 20)),
+                          [(cx - 80, cy + 20), (cx - 80, cy - 30)] + quad((cx - 80, cy - 30), (cx - 40, cy - 10), (cx, cy - 10)) + [(cx, cy + 40)],
+                          [(cx, cy - 10)] + quad((cx, cy - 10), (cx + 40, cy - 10), (cx + 80, cy - 30)) + [(cx + 80, cy + 20)]], w=6)
+    t += 0.45
     for i, (x, y) in enumerate([(cx - 140, cy - 10), (cx, cy - 130), (cx + 140, cy - 10)]):
-        a += head(t + i * 0.28, t + i * 0.28 + 0.26, x, y, 46)
-    return 4.0, 8.0, a
+        a += head(t + i * 0.25, t + i * 0.25 + 0.23, x, y, 46)
+    return s0, s1, a
 
 
-def scene3():
-    a, t = headline(8.05, ["Umur ni, kawan", "yang bentuk anak."], hl=1, speed=0.03)
-    a += boy(t, t + 0.35, 540, 1070, 110)
-    t += 0.37
+def scene3(s0, s1):
+    a, t = headline(s0 + 0.15, ["Umur ni, kawan", "yang bentuk anak."], hl=1, speed=0.04)
+    a += boy(t, t + 0.4, 540, 1070, 110)
+    t += 0.42
     pos = [(230, 890), (850, 890), (230, 1260), (850, 1260)]
     for i, (x, y) in enumerate(pos):
-        a += head(t + i * 0.09, t + i * 0.09 + 0.09, x, y, 58)
-    t += 0.4
+        a += head(t + i * 0.14, t + i * 0.14 + 0.13, x, y, 58)
+    t += 0.6
     arrows = []
     for x, y in pos:
         dx, dy = 540 - x, 1070 - y
@@ -324,115 +331,104 @@ def scene3():
         ux, uy = dx / n, dy / n
         p0, p1 = (x + ux * 85, y + uy * 85), (540 - ux * 140, 1070 - uy * 140)
         arrows.append([p0, p1, (p1[0] - ux * 26 - uy * 18, p1[1] - uy * 26 + ux * 18), p1, (p1[0] - ux * 26 + uy * 18, p1[1] - uy * 26 - ux * 18)])
-    a += seq(t, t + 0.28, arrows, w=6)
-    return 8.0, 11.0, a
+    a += seq(t, t + 0.45, arrows, w=6)
+    return s0, s1, a
 
 
-def scene4():
-    a, t = headline(11.05, ["Hantar ke circle", "anak soleh", "dekat rumah je."], hl=2, speed=0.036, size=82)
+def scene4(s0, s1):
+    a, t = headline(s0 + 0.15, ["Hantar ke circle", "anak soleh"], speed=0.04, size=82)
     hx, hy = 220, 1230
     house = [(hx - 85, hy - 90), (hx - 85, hy + 70), (hx + 85, hy + 70), (hx + 85, hy - 90)]
     roof = [(hx - 110, hy - 80), (hx, hy - 175), (hx + 110, hy - 80), (hx - 110, hy - 80)]
-    a += [fill(t + 0.3, roof, MUSTARD)]
-    a += seq(t, t + 0.45, [roof, house, rbox(hx - 25, hy + 5, hx + 25, hy + 70, 6)])
-    t += 0.5
+    a += [fill(t + 0.25, roof, MUSTARD)]
+    a += seq(t, t + 0.4, [roof, house, rbox(hx - 25, hy + 5, hx + 25, hy + 70, 6)])
+    t += 0.45
     path = quad((hx + 100, hy + 60), (450, 1420), (640, 1300))
     dashes = [path[i:i + 3] for i in range(0, len(path) - 2, 4)]
-    a += seq(t, t + 0.35, dashes, w=6)
-    t += 0.4
+    a += seq(t, t + 0.3, dashes, w=6)
+    t += 0.35
     mx, my = 760, 1300
     dome = ell(mx, my - 200, 115, 105, 180, 360) + [(mx - 115, my - 200)]
-    a += [fill(t + 0.25, dome, MUSTARD), fill(t + 0.6, [(950, 1010), (990, 1010), (990, 1300), (950, 1300)], MUSTARD_L)]
-    a += seq(t, t + 0.75, [[(mx - 150, my - 200), (mx - 150, my), (mx + 150, my), (mx + 150, my - 200), (mx - 150, my - 200)],
+    a += [fill(t + 0.25, dome, MUSTARD), fill(t + 0.55, [(950, 1010), (990, 1010), (990, 1300), (950, 1300)], MUSTARD_L)]
+    a += seq(t, t + 0.65, [[(mx - 150, my - 200), (mx - 150, my), (mx + 150, my), (mx + 150, my - 200), (mx - 150, my - 200)],
                            dome, [(mx, my - 305), (mx, my - 350)], ell(mx, my - 362, 12),
                            [(mx - 35, my)] + ell(mx, my - 70, 35, 45, 180, 360) + [(mx + 35, my)],
                            [(950, 1300), (950, 1010), (970, 975), (990, 1010), (990, 1300)]])
-    return 11.0, 15.0, a
+    t = max(t + 0.7, s0 + 2.6)  # "dekat rumah je" ikut VO
+    b, _ = headline(t, ["dekat rumah je."], hl=0, speed=0.036, size=82, ys=[L3])
+    return s0, s1, a + b
 
 
 _logo = None
 
 
-def logo_img(h):
+def logo_img(w):
     global _logo
     if _logo is None:
-        src = Image.open(os.path.join(HERE, "assets", "hyb_logo.png")).convert("RGBA")
-        _logo = src.resize((int(src.width * h * S / src.height), int(h * S)), Image.LANCZOS)
+        src = Image.open(os.path.join(HERE, "assets", "hyb_wordmark.png")).convert("RGBA")
+        _logo = src.resize((int(w * S), int(src.height * w * S / src.width)), Image.LANCZOS)
     return _logo
 
 
-def scene5():
-    a, t = [], 15.1
-    lh, lcx, lcy = 360, 540, 520
-    lw = lh * 135 / 140
+def scene5(s0, s1):
+    a, t = [], s0 + 0.15
+    lw, lcx, lcy = 1000, 540, 600
 
     def draw_logo(img, d, p):
-        im = logo_img(lh)
-        ch = int(im.height * p)
-        if ch > 0:
-            piece = im.crop((0, 0, im.width, ch))
-            img.paste(piece, (int((lcx - lw / 2) * S), int((lcy - lh / 2) * S)), piece)
-    zig = []
-    for i in range(7):
-        y = lcy - lh / 2 + lh * (i + 0.5) / 7
-        zig += [(lcx - lw * 0.4, y), (lcx + lw * 0.4, y)] if i % 2 == 0 else [(lcx + lw * 0.4, y), (lcx - lw * 0.4, y)]
-    a.append(Act(t, t + 0.9, zig, draw_logo))
-    t += 0.95
-    a.append(text(t, t + 0.55, "HALAQAH", 540, 830, 128, col=MUSTARD, stroke_w=6))
-    t += 0.6
-    a.append(text(t, t + 0.6, "YA BUNAYYA", 540, 965, 112, col=MUSTARD, stroke_w=6))
-    t += 0.65
-    pill = rbox(90, 1060, 990, 1150, 45)
-    a.append(stroke(t, t + 0.4, pill, 6))
-    a.append(fill(t + 0.4, pill, NAVY, dur=0.2))
-    a.append(text(t + 0.55, t + 0.56, "Bimbingan Al-Quran • Solat • Adab", 540, 1105, 44, "Bold", WHITE, hand=False))
-    t += 0.65
-    # ikon: buku, sejadah, hati
-    bx, by = 260, 1320
-    book = [(bx - 75, by - 40), (bx, by - 20), (bx + 75, by - 40), (bx + 75, by + 45), (bx, by + 65), (bx - 75, by + 45), (bx - 75, by - 40)]
+        im = logo_img(lw)
+        cw = int(im.width * p)
+        if cw > 0:
+            piece = im.crop((0, 0, cw, im.height))
+            img.paste(piece, (int((lcx - lw / 2) * S), int(lcy * S - im.height / 2)), piece)
+    a.append(Act(t, t + 1.3, [(lcx - lw * 0.45, lcy + 40), (lcx + lw * 0.45, lcy + 40)], draw_logo))
+    # ikon: buku, sejadah, hati - ikut VO "Al-Quran", "solat", "adab"
+    t = s0 + 3.0
+    bx, by = 240, 1060
+    book = [(bx - 85, by - 45), (bx, by - 22), (bx + 85, by - 45), (bx + 85, by + 50), (bx, by + 73), (bx - 85, by + 50), (bx - 85, by - 45)]
     a += [fill(t + 0.15, book, MUSTARD_L)]
-    a += seq(t, t + 0.35, [book, [(bx, by - 20), (bx, by + 65)], [(bx - 55, by - 5), (bx - 20, by + 5)], [(bx + 20, by + 5), (bx + 55, by - 5)]], w=6)
-    a.append(text(t + 0.35, t + 0.5, "Al-Quran", bx, by + 125, 42, "Bold"))
-    t += 0.55
-    sx, sy = 540, 1320
-    mat = [(sx - 60, sy - 70), (sx + 60, sy - 70), (sx + 60, sy + 70), (sx - 60, sy + 70), (sx - 60, sy - 70)]
-    arch = [(sx - 35, sy + 50), (sx - 35, sy - 10)] + ell(sx, sy - 10, 35, 40, 180, 360) + [(sx + 35, sy + 50)]
+    a += seq(t, t + 0.4, [book, [(bx, by - 22), (bx, by + 73)], [(bx - 62, by - 5), (bx - 22, by + 6)], [(bx + 22, by + 6), (bx + 62, by - 5)]], w=6)
+    a.append(text(t + 0.42, t + 0.62, "Al-Quran", bx, by + 140, 46, "Bold"))
+    t = s0 + 4.35
+    sx, sy = 540, 1060
+    mat = [(sx - 68, sy - 78), (sx + 68, sy - 78), (sx + 68, sy + 78), (sx - 68, sy + 78), (sx - 68, sy - 78)]
+    arch = [(sx - 40, sy + 56), (sx - 40, sy - 10)] + ell(sx, sy - 10, 40, 45, 180, 360) + [(sx + 40, sy + 56)]
     a += [fill(t + 0.15, mat, MUSTARD_L)]
-    a += seq(t, t + 0.3, [mat, arch], w=6)
-    a.append(text(t + 0.3, t + 0.45, "Solat", sx, sy + 125, 42, "Bold"))
-    t += 0.5
-    hp = heart(820, 1315, 4.2)
+    a += seq(t, t + 0.35, [mat, arch], w=6)
+    a.append(text(t + 0.37, t + 0.52, "Solat", sx, sy + 140, 46, "Bold"))
+    t = s0 + 5.1
+    hp = heart(840, 1055, 4.7)
     a += [fill(t + 0.2, hp, MUSTARD)]
-    a += seq(t, t + 0.3, [hp], w=6)
-    a.append(text(t + 0.3, t + 0.45, "Adab", 820, 1445, 42, "Bold"))
-    return 15.0, 20.0, a
+    a += seq(t, t + 0.32, [hp], w=6)
+    a.append(text(t + 0.34, t + 0.5, "Adab", 840, 1200, 46, "Bold"))
+    return s0, s1, a
 
 
-def scene6():
-    a = [text(20.05, 20.35, "YURAN", 540, 500, 54)]
-    a.append(text(20.4, 21.2, "RM50", 540, 720, 300, col=MUSTARD, stroke_w=9))
-    a.append(stroke(21.25, 21.6, quad((290, 880), (540, 930), (800, 870)), 9))
-    a.append(text(21.65, 22.1, "/ SEBULAN", 540, 990, 66))
-    t = 22.25
-    cx, cy = 225, 1200
-    a += seq(t, t + 0.4, [ell(cx, cy, 52), [(cx, cy - 30), (cx, cy), (cx + 24, cy + 14)]], w=6)
-    a.append(text(t + 0.45, t + 1.0, "Setiap Sabtu · 9–11 pagi", 590, 1200, 50, "Bold"))
-    return 20.0, 24.0, a
+def scene6(s0, s1):
+    t = s0 + 0.12
+    cx, cy = 225, 470
+    a = seq(t, t + 0.3, [ell(cx, cy, 46), [(cx, cy - 26), (cx, cy), (cx + 21, cy + 12)]], w=6)
+    a.append(text(t + 0.32, t + 0.8, "Setiap Sabtu · 9–11 pagi", 590, 470, 48, "Bold"))
+    t += 0.85
+    a.append(text(t, t + 0.2, "YURAN", 540, 640, 54))
+    a.append(text(t + 0.25, t + 0.9, "RM50", 540, 840, 300, col=MUSTARD, stroke_w=9))
+    a.append(stroke(t + 0.95, t + 1.2, quad((290, 1000), (540, 1050), (800, 990)), 9))
+    a.append(text(t + 1.25, t + 1.6, "/ SEBULAN", 540, 1110, 66))
+    return s0, s1, a
 
 
-def scene7():
-    a, t = headline(24.05, ["Satu tempat,", "20 pelajar je."], hl=1)
+def scene7(s0, s1):
+    a, t = headline(s0 + 0.15, ["Satu tempat,", "20 pelajar je."], hl=1, speed=0.042)
+    t = max(t, s0 + 1.45)
     cells = [(540 + (c - 2) * 140, 860 + r * 140) for r in range(4) for c in range(5)]
-    t += 0.05
     for i, (x, y) in enumerate(cells):
-        a.append(stroke(t + i * 0.045, t + i * 0.045 + 0.04, ell(x, y, 50), 6))
-    t += 20 * 0.045 + 0.05
+        a.append(stroke(t + i * 0.035, t + i * 0.035 + 0.032, ell(x, y, 50), 6))
+    t += 20 * 0.035 + 0.05
     for i, (x, y) in enumerate(cells):
         def draw(img, d, p, x=x, y=y):
             r = 44 * ease_back(p)
             d.ellipse([(x - r) * S, (y - r) * S, (x + r) * S, (y + r) * S], fill=MUSTARD)
         a.append(Act(t + i * 0.035, t + i * 0.035 + 0.2, None, draw, hand=False, sfx=False))
-    return 24.0, 28.0, a
+    return s0, s1, a
 
 
 def bubble():
@@ -447,24 +443,24 @@ def bubble():
     return im
 
 
-def scene8():
-    a = [text(28.1, 28.8, "Nak info lanjut?", 540, 470, 88)]
-    t = 28.9
-    px, py = 540, 720
+def scene8(s0, s1):
+    a = [text(s0 + 0.12, s0 + 0.65, "Nak info lanjut?", 540, 470, 88)]
+    t = s0 + 0.7
+    px, py = 540, 700
     pin = ell(px, py, 82, 82, 140, 400) + [(px, py + 150), ell(px, py, 82, 82, 140, 400)[0]]
-    a += [fill(t + 0.35, pin, MUSTARD)]
-    a += seq(t, t + 0.5, [pin, ell(px, py, 28)])
-    t += 0.55
-    box = rbox(170, 950, 910, 1050, 22)
+    a += [fill(t + 0.3, pin, MUSTARD)]
+    a += seq(t, t + 0.42, [pin, ell(px, py, 28)])
+    t = s0 + 1.2
+    a.append(pop(t, 540, 1020, bubble, dur=0.45))
+    t += 0.6
+    box = rbox(170, 1210, 910, 1310, 22)
     a.append(stroke(t, t + 0.4, box, 6))
-    a.append(text(t + 0.45, t + 1.0, "Bangi, Selangor", 470, 1000, 46, "SemiBold", GREY))
-    t += 1.15
-    a.append(pop(t, 540, 1225, bubble, dur=0.45))
-    a.append(text(t + 0.6, t + 0.61, "@gengngajiglobal", 540, 1420, 40, "SemiBold", GREY, hand=False))
-    return 28.0, 34.0, a
+    a.append(text(t + 0.45, t + 1.0, "Bangi, Selangor", 470, 1260, 46, "SemiBold", GREY))
+    a.append(text(t + 1.2, t + 1.21, "@gengngajiglobal", 540, 1420, 40, "SemiBold", GREY, hand=False))
+    return s0, s1, a
 
 
-SCENES = [scene1(), scene2(), scene3(), scene4(), scene5(), scene6(), scene7(), scene8()]
+SCENES = [f(B[i], B[i + 1]) for i, f in enumerate([scene1, scene2, scene3, scene4, scene5, scene6, scene7, scene8])]
 FADE = 0.25
 
 
@@ -510,7 +506,20 @@ def frame(i):
     return np.asarray(render(i / FPS)).tobytes()
 
 
-def sfx_track(path):
+def load_vo(path, sr):
+    """Tukar VO ke mono sr, potong ikut VO_CUTS dan letak pada masa video."""
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-ac", "1", "-ar", str(sr), "-f", "f32le", "-"],
+                         capture_output=True, check=True).stdout
+    src = np.frombuffer(raw, np.float32)
+    out = np.zeros(int(DUR * sr), np.float32)
+    for a, b, t in VO_CUTS:
+        piece = src[int(a * sr):int(b * sr)]
+        k = int(t * sr)
+        out[k:k + len(piece)] += piece[: len(out) - k]
+    return out
+
+
+def sfx_track(path, vo=None):
     sr = 44100
     n = int(DUR * sr)
     out = np.zeros(n, np.float32)
@@ -532,6 +541,8 @@ def sfx_track(path):
                 tt = np.arange(m) / sr
                 tone = np.sin(2 * np.pi * (700 + 900 * tt / 0.12) * tt) * np.exp(-tt * 30) * 0.25
                 out[a:a + m] += tone[: max(0, min(m, n - a))]
+    if vo:
+        out = out * 0.6 + load_vo(vo, sr)
     pcm = (np.clip(out, -1, 1) * 32767).astype(np.int16)
     with wave.open(path, "wb") as wf:
         wf.setnchannels(1)
@@ -542,13 +553,10 @@ def sfx_track(path):
 
 def main(out, vo=None):
     sfx = os.path.splitext(out)[0] + "_sfx.wav"
-    sfx_track(sfx)
+    sfx_track(sfx, vo)
     total = int(round(DUR * FPS))
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
            "-r", str(FPS), "-i", "-", "-i", sfx]
-    if vo:
-        cmd += ["-i", vo, "-filter_complex", "[1:a]volume=0.6[s];[2:a][s]amix=inputs=2:duration=first:normalize=0[a]",
-                "-map", "0:v", "-map", "[a]"]
     cmd += ["-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
             "-t", f"{DUR:.2f}", "-movflags", "+faststart", out]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
@@ -564,21 +572,21 @@ def main(out, vo=None):
 
 # panel storyboard: (saat, label babak, VO)
 BOARD = [
-    (1.2, "HOOK 0–4s", "Anak dah masuk sekolah rendah?"),
-    (3.7, "HOOK 0–4s", "(tiada VO, teks umur 7–12 tahun)"),
-    (5.6, "ISI 1 4–8s", "Ramai ibu ayah sekarang tengah cari…"),
-    (7.7, "ISI 1 4–8s", "…circle anak soleh."),
-    (10.8, "ISI 2 8–11s", "Sebab umur macam ni, kawan sekeliling yang bentuk anak kita."),
-    (12.6, "ISI 3 11–15s", "Hantar mereka ke circle anak soleh…"),
-    (14.7, "ISI 3 11–15s", "…dekat rumah je."),
-    (16.4, "ISI 4 15–20s", "HYB, Halaqah Ya Bunayya."),
-    (19.7, "ISI 4 15–20s", "Bimbingan Al-Quran, solat dan adab."),
-    (21.0, "ISI 5 20–24s", "Seminggu sekali…"),
-    (23.7, "ISI 5 20–24s", "…lima puluh ringgit je sebulan."),
-    (25.9, "ISI 6 24–28s", "Satu tempat…"),
-    (27.7, "ISI 6 24–28s", "…dua puluh pelajar je."),
-    (29.6, "CTA 28–34s", "Nak info lanjut?"),
-    (33.5, "CTA 28–34s", "Komen lokasi anda."),
+    (1.4, "HOOK 0–3s", "Anak dah masuk sekolah rendah?"),
+    (2.7, "HOOK 0–3s", "(tiada VO, teks umur 7–12 tahun)"),
+    (4.6, "ISI 1 3–7.3s", "Ramai ibu ayah sekarang tengah cari…"),
+    (7.0, "ISI 1 3–7.3s", "…circle anak soleh."),
+    (11.3, "ISI 2 7.3–11.6s", "Sebab umur macam ni, kawan sekeliling yang bentuk anak kita."),
+    (13.5, "ISI 3 11.6–15.7s", "Hantar mereka ke circle anak soleh…"),
+    (15.4, "ISI 3 11.6–15.7s", "…dekat rumah je."),
+    (17.6, "ISI 4 15.7–22.1s", "HYB, Halaqah Ya Bunayya."),
+    (21.8, "ISI 4 15.7–22.1s", "Bimbingan Al-Quran, solat dan adab."),
+    (23.0, "ISI 5 22.1–25.8s", "Seminggu sekali…"),
+    (25.5, "ISI 5 22.1–25.8s", "…lima puluh ringgit je sebulan."),
+    (27.5, "ISI 6 25.8–29.3s", "Satu tempat…"),
+    (29.0, "ISI 6 25.8–29.3s", "…dua puluh pelajar je."),
+    (30.6, "CTA 29.3–34s", "Nak info lanjut?"),
+    (33.5, "CTA 29.3–34s", "Komen lokasi anda."),
 ]
 
 
