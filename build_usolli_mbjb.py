@@ -305,7 +305,7 @@ def end_card(t):
         w = 300 * fade(1)
         d.rectangle([W / 2 - w / 2, 670, W / 2 + w / 2, 676], fill=TEAL)
     put(1, (W / 2, 770), "Bengkel solat untuk organisasi", font(58, "ExtraBold"), WHITE)
-    items = ["50 peserta setiap sesi", "Kerajaan RM8,500  ·  Swasta RM10,500", "HRD Claimable (swasta)"]
+    items = ["50 peserta setiap sesi", "Untuk agensi kerajaan & swasta", "HRD Claimable (swasta)"]
     for k, s in enumerate(items):
         y = 900 + k * 95
         p = fade(2 + k)
