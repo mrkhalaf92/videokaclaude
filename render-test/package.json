@@ -1,0 +1,17 @@
+{
+  "name": "render-test",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ujian render minimum: Remotion + ffmpeg, video 5 saat",
+  "scripts": {
+    "render": "node render.mjs",
+    "verify": "bash verify.sh"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.538",
+    "@remotion/renderer": "4.0.538",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.538"
+  }
+}
