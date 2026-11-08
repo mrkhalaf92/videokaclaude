@@ -42,8 +42,8 @@ const Note: React.FC<{ text: string; at: number; seed: string }> = ({ text, at, 
         <path d="M10 70 C 30 40, 60 20, 96 6 M96 6 l -22 2 M96 6 l -8 20" fill="none" stroke={C.accent} strokeWidth={6}
           strokeLinecap="round" strokeDasharray={200} strokeDashoffset={200 * (1 - draw)} />
       </svg>
-      <div style={{ marginLeft: 120, fontFamily: FONT_NOTE, fontWeight: 700, fontSize: 92, color: C.accent,
-        transform: `rotate(-2deg) translateY(${(1 - txt) * 12}px)`, opacity: txt > 0 ? 1 : 0, whiteSpace: "nowrap" }}>
+      <div style={{ marginLeft: 120, fontFamily: FONT_NOTE, fontWeight: 700, fontSize: 92, lineHeight: 0.95, color: C.accent, maxWidth: 720,
+        transform: `rotate(-2deg) translateY(${(1 - txt) * 12}px)`, opacity: txt > 0 ? 1 : 0 }}>
         {text}
       </div>
     </div>
