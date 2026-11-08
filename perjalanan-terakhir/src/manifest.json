@@ -1,0 +1,150 @@
+{
+ "s01": {
+  "clips": [
+   {
+    "file": "clips/s01_0.mp4",
+    "audio": "audio/s01_0.wav",
+    "offset": 0.0,
+    "len": 6.0
+   }
+  ]
+ },
+ "s02": {
+  "clips": [
+   {
+    "file": "clips/s02_0.mp4",
+    "audio": "audio/s02_0.wav",
+    "offset": 0.0,
+    "len": 6.5
+   }
+  ]
+ },
+ "s03": {
+  "clips": [
+   {
+    "file": "clips/s03_0.mp4",
+    "audio": "audio/s03_0.wav",
+    "offset": 0.0,
+    "len": 5.0
+   }
+  ]
+ },
+ "s04": {
+  "clips": [
+   {
+    "file": "clips/s04_0.mp4",
+    "audio": "audio/s04_0.wav",
+    "offset": 0.0,
+    "len": 7.5
+   }
+  ]
+ },
+ "s05": {
+  "clips": [
+   {
+    "file": "clips/s05_0.mp4",
+    "audio": "audio/s05_0.wav",
+    "offset": 0.0,
+    "len": 7.0
+   }
+  ],
+  "still": "stills/s05.jpg"
+ },
+ "s06": {
+  "clips": [
+   {
+    "file": "clips/s06_0.mp4",
+    "audio": "audio/s06_0.wav",
+    "offset": 0.0,
+    "len": 6.0
+   }
+  ]
+ },
+ "s07": {
+  "clips": [
+   {
+    "file": "clips/s07_0.mp4",
+    "audio": "audio/s07_0.wav",
+    "offset": 0.0,
+    "len": 3.5
+   },
+   {
+    "file": "clips/s07_1.mp4",
+    "audio": "audio/s07_1.wav",
+    "offset": 3.5,
+    "len": 2.3
+   }
+  ]
+ },
+ "s08": {
+  "clips": [
+   {
+    "file": "clips/s08_0.mp4",
+    "audio": "audio/s08_0.wav",
+    "offset": 0.0,
+    "len": 6.7
+   }
+  ]
+ },
+ "s09": {
+  "clips": [
+   {
+    "file": "clips/s09_0.mp4",
+    "audio": "audio/s09_0.wav",
+    "offset": 0.0,
+    "len": 7.0
+   }
+  ]
+ },
+ "s10": {
+  "clips": [
+   {
+    "file": "clips/s10_0.mp4",
+    "audio": "audio/s10_0.wav",
+    "offset": 0.0,
+    "len": 6.5
+   }
+  ],
+  "still": "stills/s10.jpg"
+ },
+ "s11": {
+  "clips": [
+   {
+    "file": "clips/s11_0.mp4",
+    "audio": "audio/s11_0.wav",
+    "offset": 0.0,
+    "len": 6.5
+   }
+  ]
+ },
+ "s12": {
+  "clips": [
+   {
+    "file": "clips/s12_0.mp4",
+    "audio": "audio/s12_0.wav",
+    "offset": 0.0,
+    "len": 5.2
+   }
+  ]
+ },
+ "s13": {
+  "clips": [
+   {
+    "file": "clips/s13_0.mp4",
+    "audio": "audio/s13_0.wav",
+    "offset": 0.0,
+    "len": 6.8
+   }
+  ]
+ },
+ "s14": {
+  "clips": [
+   {
+    "file": "clips/s14_0.mp4",
+    "audio": "audio/s14_0.wav",
+    "offset": 0.0,
+    "len": 7.5
+   }
+  ]
+ }
+}

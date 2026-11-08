@@ -1,0 +1,20 @@
+{
+  "name": "perjalanan-terakhir",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Preview video Bengkel Perjalanan Terakhir (Scrapbook Documentary)",
+  "scripts": {
+    "prep": "python3 tools/prep.py",
+    "audio": "python3 tools/make_audio.py && bash tools/loudnorm.sh",
+    "render": "node render.mjs",
+    "stills": "node render.mjs --stills",
+    "finish": "bash tools/finish.sh"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.538",
+    "@remotion/renderer": "4.0.538",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.538"
+  }
+}

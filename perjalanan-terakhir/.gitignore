@@ -1,0 +1,8 @@
+node_modules/
+footage/
+public/clips/
+public/audio/
+public/stills/
+out/*
+!out/preview.mp4
+review/
